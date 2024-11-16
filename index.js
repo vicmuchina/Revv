@@ -50,10 +50,14 @@ const productSchema = new mongoose.Schema({
   company: { type: String, required: true },      // Company name
   productName: { type: String, required: true },  // Product name
   category: { type: String, required: true },     // Product category
-  description: { type: String },                  // Product description (optional)
+  description: { type: String },                  // Product description
   price: { type: Number, required: true },        // Product price
   qrId: { type: String, required: true },        // Unique QR code identifier
-  imageUrl: { type: String, required: true }      // URL to product image
+  imageUrl: { type: String, required: true },     // URL to product image
+  batchNumber: { type: String, required: true },  // Batch number
+  serialNumber: { type: String, required: true }, // Serial number
+  manufacturingDate: { type: Date, required: true }, // Manufacturing date
+  expiryDate: { type: Date },                    // Expiry date (optional)
 });
 
 // Create Product model from schema
@@ -96,21 +100,35 @@ function generateQRCodeId() {
  */
 app.post('/api/products', upload.single('image'), async (req, res) => {
   try {
-    // Extract data from request body using destructuring
-    const { company, productName, category, description, price } = req.body;
+    // Extract all fields from request body
+    const { 
+      company, 
+      productName, 
+      category, 
+      description, 
+      price,
+      batchNumber,
+      serialNumber,
+      manufacturingDate,
+      expiryDate 
+    } = req.body;
 
     // Validate required fields
-    if (!company || !productName || !category || !price) {
+    if (!company || !productName || !category || !price || !batchNumber || !serialNumber || !manufacturingDate) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
-    // Create product data object
+    // Create product data object with all fields
     const productData = {
       company,
       productName,
       category,
       description,
       price,
+      batchNumber,
+      serialNumber,
+      manufacturingDate: new Date(manufacturingDate),
+      expiryDate: expiryDate ? new Date(expiryDate) : undefined,
       qrId: generateQRCodeId(),
       // Set image URL, use placeholder if no image uploaded
       imageUrl: req.file ? `/uploads/${req.file.filename}` : '/placeholder.jpg'

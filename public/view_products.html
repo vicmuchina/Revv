@@ -62,22 +62,73 @@
                     
                     <!-- Product Details -->
                     <div class="p-6">
-                        <div class="flex items-center justify-between mb-2">
+                        <!-- Product Header -->
+                        <div class="flex items-center justify-between mb-4">
                             <h2 class="text-2xl font-semibold">{{ currentProduct.productName }}</h2>
                             <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">
                                 {{ currentProduct.category }}
                             </span>
                         </div>
-                        <p class="text-gray-600 text-sm mb-2">Company: {{ currentProduct.company }}</p>
-                        <p class="text-gray-500 text-sm mb-4">{{ currentProduct.description }}</p>
-                        
-                        <!-- Price and QR Code Button -->
+
+                        <!-- Company Information -->
+                        <div class="mb-6">
+                            <h3 class="text-lg font-semibold mb-2">Company Information</h3>
+                            <p class="text-gray-600">{{ currentProduct.company }}</p>
+                        </div>
+
+                        <!-- Product Description -->
+                        <div class="mb-6">
+                            <h3 class="text-lg font-semibold mb-2">Product Description</h3>
+                            <p class="text-gray-700">{{ currentProduct.description }}</p>
+                        </div>
+
+                        <!-- Additional Details -->
+                        <div class="mb-6">
+                            <h3 class="text-lg font-semibold mb-2">Product Details</h3>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <p class="text-gray-600 font-medium">Batch Number:</p>
+                                    <p class="text-gray-800">{{ currentProduct.batchNumber || 'N/A' }}</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-600 font-medium">Serial Number:</p>
+                                    <p class="text-gray-800">{{ currentProduct.serialNumber || 'N/A' }}</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-600 font-medium">Manufacturing Date:</p>
+                                    <p class="text-gray-800">{{ currentProduct.manufacturingDate || 'N/A' }}</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-600 font-medium">Expiry Date:</p>
+                                    <p class="text-gray-800">{{ currentProduct.expiryDate || 'N/A' }}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Authentication Status -->
+                        <div class="mb-6 bg-green-50 p-4 rounded-lg">
+                            <div class="flex items-center mb-2">
+                                <svg class="h-5 w-5 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                </svg>
+                                <h3 class="text-lg font-semibold text-green-800">REEV Authenticated</h3>
+                            </div>
+                            <p class="text-green-700">This product has been verified and authenticated by REEV.</p>
+                        </div>
+
+                        <!-- Price and Actions -->
                         <div class="flex justify-between items-center">
-                            <span class="text-lg font-bold">${{ currentProduct.price }}</span>
+                            <div>
+                                <p class="text-gray-600 text-sm">Price</p>
+                                <span class="text-2xl font-bold">${{ currentProduct.price }}</span>
+                            </div>
                             <button 
                                 @click="showQRCode(currentProduct.qrId)"
-                                class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+                                class="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 flex items-center"
                             >
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/>
+                                </svg>
                                 View QR Code
                             </button>
                         </div>
