@@ -1,4 +1,4 @@
-<!-- View Products Page - Displays all registered and authenticated products -->
+<!-- View Products Page - Displays all registered and authenticated products or a specific product based on query -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,7 +12,7 @@
 <body class="bg-gray-50">
     <div id="app" class="min-h-screen p-4">
         <div class="max-w-7xl mx-auto">
-            <!-- Header with back button and category filter -->
+            <!-- Header with back button and filters -->
             <div class="flex items-center justify-between mb-6">
                 <!-- Back button -->
                 <div class="flex items-center">
@@ -37,10 +37,106 @@
                     <option value="health">Health & Beauty</option>
                     <option value="other">Other</option>
                 </select>
+
+                <!-- Company filter dropdown -->
+                <div class="flex items-center ml-4">
+                    <label class="block text-sm font-medium text-gray-700 mr-2">
+                        Filter by Company:
+                    </label>
+                    <select 
+                        v-model="selectedCompany" 
+                        @change="filterProducts"
+                        class="p-2 border rounded-md"
+                    >
+                        <option value="">All Companies</option>
+                        <option v-for="company in companies" :key="company" :value="company">{{ company }}</option>
+                    </select>
+                </div>
             </div>
 
-            <!-- Products Grid - Displays products in a responsive grid layout -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Products Grid or Single Product Display -->
+            <div v-if="isSingleProduct" class="flex justify-center">
+                <div class="bg-white rounded-lg shadow overflow-hidden w-full max-w-2xl">
+                    <!-- Product Image -->
+                    <img :src="currentProduct.imageUrl || '/placeholder.jpg'" :alt="currentProduct.productName" class="w-full h-64 object-cover">
+                    
+                    <!-- Product Details -->
+                    <div class="p-6">
+                        <!-- Product Header -->
+                        <div class="flex items-center justify-between mb-4">
+                            <h2 class="text-2xl font-semibold">{{ currentProduct.productName }}</h2>
+                            <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">
+                                {{ currentProduct.category }}
+                            </span>
+                        </div>
+
+                        <!-- Company Information -->
+                        <div class="mb-6">
+                            <h3 class="text-lg font-semibold mb-2">Company Information</h3>
+                            <p class="text-gray-600">{{ currentProduct.company }}</p>
+                        </div>
+
+                        <!-- Product Description -->
+                        <div class="mb-6">
+                            <h3 class="text-lg font-semibold mb-2">Product Description</h3>
+                            <p class="text-gray-700">{{ currentProduct.description }}</p>
+                        </div>
+
+                        <!-- Additional Details -->
+                        <div class="mb-6">
+                            <h3 class="text-lg font-semibold mb-2">Product Details</h3>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <p class="text-gray-600 font-medium">Batch Number:</p>
+                                    <p class="text-gray-800">{{ currentProduct.batchNumber || 'N/A' }}</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-600 font-medium">Serial Number:</p>
+                                    <p class="text-gray-800">{{ currentProduct.serialNumber || 'N/A' }}</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-600 font-medium">Manufacturing Date:</p>
+                                    <p class="text-gray-800">{{ currentProduct.manufacturingDate || 'N/A' }}</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-600 font-medium">Expiry Date:</p>
+                                    <p class="text-gray-800">{{ currentProduct.expiryDate || 'N/A' }}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Authentication Status -->
+                        <div class="mb-6 bg-green-50 p-4 rounded-lg">
+                            <div class="flex items-center mb-2">
+                                <svg class="h-5 w-5 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                </svg>
+                                <h3 class="text-lg font-semibold text-green-800">REEV Authenticated</h3>
+                            </div>
+                            <p class="text-green-700">This product has been verified and authenticated by REEV.</p>
+                        </div>
+
+                        <!-- Price and Actions -->
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="text-gray-600 text-sm">Price</p>
+                                <span class="text-2xl font-bold">${{ currentProduct.price }}</span>
+                            </div>
+                            <button 
+                                @click="showQRCode(currentProduct.qrId)"
+                                class="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 flex items-center"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/>
+                                </svg>
+                                View QR Code
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <!-- Product Card Component -->
                 <div v-for="product in filteredProducts" :key="product._id" class="bg-white rounded-lg shadow overflow-hidden">
                     <!-- Product Image -->
@@ -54,36 +150,47 @@
                                 {{ product.category }}
                             </span>
                         </div>
-                        <p class="text-gray-600 text-sm mb-2">{{ product.companyName }}</p>
+                        <p class="text-gray-600 text-sm mb-2">{{ product.company }}</p>
                         <p class="text-gray-500 text-sm mb-4">{{ product.description }}</p>
                         
-                        <!-- Price and QR Code Button -->
+                        <!-- Price, QR Code Button, and Delete Button -->
                         <div class="flex justify-between items-center">
                             <span class="text-lg font-bold">${{ product.price }}</span>
-                            <button 
-                                @click="showQRCode(product.qrId)"
-                                class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
-                            >
-                                View QR Code
-                            </button>
+                            <div class="flex gap-2">
+                                <button 
+                                    @click="showQRCode(product.qrId)"
+                                    class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+                                >
+                                    View QR Code
+                                </button>
+                                <button 
+                                    @click="deleteProduct(product._id)"
+                                    class="bg-red-600 text-white p-2 rounded-md hover:bg-red-700"
+                                    title="Delete Product"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- QR Code Modal - Shows when View QR Code is clicked -->
+            <!-- QR Code Modal -->
             <div v-if="showModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
                 <div class="bg-white p-6 rounded-lg max-w-sm w-full">
                     <h3 class="text-lg font-semibold mb-4">Product QR Code</h3>
                     <div class="text-center">
                         <!-- Dynamic QR Code generation using external API -->
-                        <img :src="'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + selectedQRId" 
+                        <img :src="'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + qrUrl" 
                              alt="QR Code" 
                              class="mx-auto mb-4">
-                        <p class="text-sm text-gray-600 mb-4">Scan this QR code to verify the product</p>
+                        <p class="text-sm text-gray-600 mb-4">Scan this QR code to view product details</p>
                     </div>
                     <button 
-                        @click="showModal = false"
+                        @click="closeModal"
                         class="w-full bg-gray-200 text-gray-800 py-2 rounded-md hover:bg-gray-300"
                     >
                         Close
@@ -98,52 +205,87 @@
         const { createApp } = Vue
 
         createApp({
-            // Application state
             data() {
                 return {
                     products: [],
                     selectedCategory: '',
+                    selectedCompany: '',
+                    companies: [],
                     showModal: false,
-                    selectedQRId: '',
+                    qrUrl: '',
+                    isSingleProduct: false,
+                    currentProduct: {}
                 }
             },
-            // Computed properties
             computed: {
                 filteredProducts() {
-                    if (!this.selectedCategory) return this.products;
-                    return this.products.filter(p => p.category === this.selectedCategory);
+                    return this.products.filter(product => {
+                        const matchesCategory = this.selectedCategory ? product.category === this.selectedCategory : true;
+                        const matchesCompany = this.selectedCompany ? product.company === this.selectedCompany : true;
+                        return matchesCategory && matchesCompany;
+                    });
                 }
             },
-            // Methods for handling user interactions
             methods: {
-                // Fetch products from the server
                 async fetchProducts() {
                     try {
-                        const response = await fetch('/api/products');
-                        this.products = await response.json();
+                        const urlParams = new URLSearchParams(window.location.search);
+                        const productId = urlParams.get('id'); // Get 'id' from query params
+
+                        if (productId) {
+                            // Fetch specific product
+                            const response = await fetch(`/api/products/${productId}`);
+                            const data = await response.json();
+
+                            if (data.product) {
+                                this.currentProduct = data.product;
+                                this.isSingleProduct = true;
+                            } else {
+                                this.isSingleProduct = false;
+                            }
+                        } else {
+                            // Fetch all products
+                            const response = await fetch('/api/products');
+                            const data = await response.json();
+                            this.products = data.products;
+
+                            // Extract unique companies
+                            this.companies = [...new Set(this.products.map(product => product.company))];
+                        }
                     } catch (error) {
                         console.error('Error fetching products:', error);
-                        // Fallback to sample data if API fails
-                        this.products = [
-                            {
-                                _id: 1,
-                                productName: 'Sample Product',
-                                companyName: 'Sample Company',
-                                category: 'electronics',
-                                description: 'This is a sample product description',
-                                price: 99.99,
-                                qrId: 'SAMPLE-QR-123'
-                            }
-                        ];
+                        // Handle error appropriately
                     }
                 },
-                // Show QR code modal
                 showQRCode(qrId) {
-                    this.selectedQRId = qrId;
+                    this.qrUrl = `http://localhost:3000/view_products.html?id=${qrId}`;
                     this.showModal = true;
+                },
+                closeModal() {
+                    this.showModal = false;
+                    this.qrUrl = '';
+                },
+                async deleteProduct(productId) {
+                    if (confirm('Are you sure you want to delete this product?')) {
+                        try {
+                            const response = await fetch(`/api/products/${productId}`, {
+                                method: 'DELETE'
+                            });
+
+                            if (!response.ok) {
+                                throw new Error('Failed to delete product');
+                            }
+
+                            // Remove product from the local array
+                            this.products = this.products.filter(product => product._id !== productId);
+                            alert('Product deleted successfully');
+                        } catch (error) {
+                            console.error('Error deleting product:', error);
+                            alert('Failed to delete product: ' + error.message);
+                        }
+                    }
                 }
             },
-            // Lifecycle hook - fetch products when component mounts
             mounted() {
                 this.fetchProducts();
             }
