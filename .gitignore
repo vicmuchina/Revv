@@ -13,7 +13,7 @@ yarn-error.log
 # Build output
 dist/
 build/
-public/uploads/
+#public/uploads/
 
 # IDE and editor files
 .idea/
