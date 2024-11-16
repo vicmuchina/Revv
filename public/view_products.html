@@ -1,0 +1,153 @@
+<!-- View Products Page - Displays all registered and authenticated products -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Registered Products</title>
+    <!-- Include Tailwind CSS and Vue.js -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+</head>
+<body class="bg-gray-50">
+    <div id="app" class="min-h-screen p-4">
+        <div class="max-w-7xl mx-auto">
+            <!-- Header with back button and category filter -->
+            <div class="flex items-center justify-between mb-6">
+                <!-- Back button -->
+                <div class="flex items-center">
+                    <button onclick="history.back()" class="p-2 hover:bg-gray-100 rounded-full">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M19 12H5m7 7-7-7 7-7"/>
+                        </svg>
+                    </button>
+                    <h1 class="text-2xl font-bold ml-2">Registered Products</h1>
+                </div>
+                
+                <!-- Category filter dropdown -->
+                <select 
+                    v-model="selectedCategory" 
+                    @change="filterProducts"
+                    class="p-2 border rounded-md"
+                >
+                    <option value="">All Categories</option>
+                    <option value="electronics">Electronics</option>
+                    <option value="fashion">Fashion</option>
+                    <option value="food">Food & Beverages</option>
+                    <option value="health">Health & Beauty</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+
+            <!-- Products Grid - Displays products in a responsive grid layout -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Product Card Component -->
+                <div v-for="product in filteredProducts" :key="product._id" class="bg-white rounded-lg shadow overflow-hidden">
+                    <!-- Product Image -->
+                    <img :src="product.imageUrl || '/placeholder.jpg'" :alt="product.productName" class="w-full h-48 object-cover">
+                    
+                    <!-- Product Details -->
+                    <div class="p-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <h2 class="text-xl font-semibold">{{ product.productName }}</h2>
+                            <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">
+                                {{ product.category }}
+                            </span>
+                        </div>
+                        <p class="text-gray-600 text-sm mb-2">{{ product.companyName }}</p>
+                        <p class="text-gray-500 text-sm mb-4">{{ product.description }}</p>
+                        
+                        <!-- Price and QR Code Button -->
+                        <div class="flex justify-between items-center">
+                            <span class="text-lg font-bold">${{ product.price }}</span>
+                            <button 
+                                @click="showQRCode(product.qrId)"
+                                class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+                            >
+                                View QR Code
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- QR Code Modal - Shows when View QR Code is clicked -->
+            <div v-if="showModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                <div class="bg-white p-6 rounded-lg max-w-sm w-full">
+                    <h3 class="text-lg font-semibold mb-4">Product QR Code</h3>
+                    <div class="text-center">
+                        <!-- Dynamic QR Code generation using external API -->
+                        <img :src="'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + selectedQRId" 
+                             alt="QR Code" 
+                             class="mx-auto mb-4">
+                        <p class="text-sm text-gray-600 mb-4">Scan this QR code to verify the product</p>
+                    </div>
+                    <button 
+                        @click="showModal = false"
+                        class="w-full bg-gray-200 text-gray-800 py-2 rounded-md hover:bg-gray-300"
+                    >
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Vue.js Application Logic -->
+    <script>
+        const { createApp } = Vue
+
+        createApp({
+            // Application state
+            data() {
+                return {
+                    products: [],
+                    selectedCategory: '',
+                    showModal: false,
+                    selectedQRId: '',
+                }
+            },
+            // Computed properties
+            computed: {
+                filteredProducts() {
+                    if (!this.selectedCategory) return this.products;
+                    return this.products.filter(p => p.category === this.selectedCategory);
+                }
+            },
+            // Methods for handling user interactions
+            methods: {
+                // Fetch products from the server
+                async fetchProducts() {
+                    try {
+                        const response = await fetch('/api/products');
+                        this.products = await response.json();
+                    } catch (error) {
+                        console.error('Error fetching products:', error);
+                        // Fallback to sample data if API fails
+                        this.products = [
+                            {
+                                _id: 1,
+                                productName: 'Sample Product',
+                                companyName: 'Sample Company',
+                                category: 'electronics',
+                                description: 'This is a sample product description',
+                                price: 99.99,
+                                qrId: 'SAMPLE-QR-123'
+                            }
+                        ];
+                    }
+                },
+                // Show QR code modal
+                showQRCode(qrId) {
+                    this.selectedQRId = qrId;
+                    this.showModal = true;
+                }
+            },
+            // Lifecycle hook - fetch products when component mounts
+            mounted() {
+                this.fetchProducts();
+            }
+        }).mount('#app')
+    </script>
+</body>
+</html> 

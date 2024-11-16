@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Custom fonts for better typography -->
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin />
+    <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?display=swap&family=Noto+Sans:wght@400;500;700;900&family=Work+Sans:wght@400;500;700;900"
+    />
+    <title>QR Code Scanner</title>
+    <!-- HTML5 QR Code Scanner Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+    <style>
+        /* Base styles */
+        body {
+            font-family: "Work Sans", "Noto Sans", sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: white;
+        }
+
+        /* Container layout */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* QR Scanner viewport styling */
+        #reader {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto 20px;
+            border: 2px solid #eee;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        #reader video {
+            width: 100%;
+            height: auto;
+        }
+
+        /* Control buttons layout */
+        .controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        /* Button styling */
+        button {
+            background-color: #ff5252;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: #ff0000;
+        }
+
+        /* Scan result display */
+        #result {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 6px;
+            background-color: #f5f5f5;
+            word-break: break-all;
+        }
+
+        /* Status message styling */
+        .status {
+            text-align: center;
+            color: #666;
+            margin: 10px 0;
+        }
+
+        /* Header with back button */
+        .header {
+            display: flex;
+            align-items: center;
+            padding: 10px 0;
+        }
+
+        .back-button {
+            color: #111518;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header with back navigation -->
+        <div class="header">
+            <div class="back-button">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 256 256">
+                    <path d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z"></path>
+                </svg>
+            </div>
+        </div>
+
+        <!-- Scanner instructions -->
+        <h1 style="font-size: 22px; font-weight: bold; margin-bottom: 10px;">Scan QR Code</h1>
+        <p style="color: #111518; margin-bottom: 20px;">Point your camera at the QR code until you hear a beep.</p>
+
+        <!-- QR Scanner viewport -->
+        <div id="reader"></div>
+        <div id="result"></div>
+        
+        <!-- Scanner controls -->
+        <div class="controls">
+            <button id="startButton">Start Scanning</button>
+            <button id="stopButton">Stop Scanning</button>
+        </div>
+
+        <p class="status" id="status"></p>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize QR scanner
+            const html5QrCode = new Html5Qrcode("reader");
+            const startButton = document.getElementById('startButton');
+            const stopButton = document.getElementById('stopButton');
+            const resultElement = document.getElementById('result');
+            const statusElement = document.getElementById('status');
+
+            let isScanning = false;
+
+            // Update status message
+            function updateStatus(message) {
+                statusElement.textContent = message;
+            }
+
+            // Handle successful QR code scan
+            function onScanSuccess(decodedText, decodedResult) {
+                resultElement.innerHTML = `<strong>Scanned QR Code:</strong> ${decodedText}`;
+                // Play success beep sound
+                const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10...');
+                audio.play();
+                stopScanning();
+            }
+
+            // Handle scan errors
+            function onScanError(error) {
+                if (error !== 'QR code parse error') {
+                    updateStatus(`Error: ${error}`);
+                }
+            }
+
+            // Start QR code scanning
+            function startScanning() {
+                if (!isScanning) {
+                    const config = {
+                        fps: 10,
+                        qrbox: { width: 250, height: 250 },
+                        aspectRatio: 1.0
+                    };
+
+                    html5QrCode.start(
+                        { facingMode: "environment" }, // Use back camera
+                        config,
+                        onScanSuccess,
+                        onScanError
+                    ).then(() => {
+                        isScanning = true;
+                        updateStatus('Scanning...');
+                        startButton.disabled = true;
+                        stopButton.disabled = false;
+                    }).catch((err) => {
+                        updateStatus(`Unable to start scanning: ${err}`);
+                    });
+                }
+            }
+
+            // Stop QR code scanning
+            function stopScanning() {
+                if (isScanning) {
+                    html5QrCode.stop().then(() => {
+                        isScanning = false;
+                        updateStatus('Scanner stopped');
+                        startButton.disabled = false;
+                        stopButton.disabled = true;
+                    }).catch((err) => {
+                        updateStatus(`Error stopping scanner: ${err}`);
+                    });
+                }
+            }
+
+            // Event listeners for control buttons
+            startButton.addEventListener('click', startScanning);
+            stopButton.addEventListener('click', stopScanning);
+            stopButton.disabled = true;
+
+            // Auto-start scanning when page loads
+            startScanning();
+        });
+    </script>
+</body>
+</html>
