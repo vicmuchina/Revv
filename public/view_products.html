@@ -102,15 +102,26 @@
                         <p class="text-gray-600 text-sm mb-2">{{ product.company }}</p>
                         <p class="text-gray-500 text-sm mb-4">{{ product.description }}</p>
                         
-                        <!-- Price and QR Code Button -->
+                        <!-- Price, QR Code Button, and Delete Button -->
                         <div class="flex justify-between items-center">
                             <span class="text-lg font-bold">${{ product.price }}</span>
-                            <button 
-                                @click="showQRCode(product.qrId)"
-                                class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
-                            >
-                                View QR Code
-                            </button>
+                            <div class="flex gap-2">
+                                <button 
+                                    @click="showQRCode(product.qrId)"
+                                    class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+                                >
+                                    View QR Code
+                                </button>
+                                <button 
+                                    @click="deleteProduct(product._id)"
+                                    class="bg-red-600 text-white p-2 rounded-md hover:bg-red-700"
+                                    title="Delete Product"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -202,6 +213,26 @@
                 closeModal() {
                     this.showModal = false;
                     this.qrUrl = '';
+                },
+                async deleteProduct(productId) {
+                    if (confirm('Are you sure you want to delete this product?')) {
+                        try {
+                            const response = await fetch(`/api/products/${productId}`, {
+                                method: 'DELETE'
+                            });
+
+                            if (!response.ok) {
+                                throw new Error('Failed to delete product');
+                            }
+
+                            // Remove product from the local array
+                            this.products = this.products.filter(product => product._id !== productId);
+                            alert('Product deleted successfully');
+                        } catch (error) {
+                            console.error('Error deleting product:', error);
+                            alert('Failed to delete product: ' + error.message);
+                        }
+                    }
                 }
             },
             mounted() {
