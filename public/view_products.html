@@ -37,6 +37,21 @@
                     <option value="health">Health & Beauty</option>
                     <option value="other">Other</option>
                 </select>
+
+                <!-- Company filter dropdown -->
+                <div class="flex items-center mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mr-2">
+                        Filter by Company:
+                    </label>
+                    <select 
+                        v-model="selectedCompany" 
+                        @change="filterProducts"
+                        class="p-2 border rounded-md"
+                    >
+                        <option value="">All Companies</option>
+                        <option v-for="company in companies" :key="company" :value="company">{{ company }}</option>
+                    </select>
+                </div>
             </div>
 
             <!-- Products Grid - Displays products in a responsive grid layout -->
@@ -54,7 +69,7 @@
                                 {{ product.category }}
                             </span>
                         </div>
-                        <p class="text-gray-600 text-sm mb-2">{{ product.companyName }}</p>
+                        <p class="text-gray-600 text-sm mb-2">{{ product.company }}</p>
                         <p class="text-gray-500 text-sm mb-4">{{ product.description }}</p>
                         
                         <!-- Price and QR Code Button -->
@@ -83,7 +98,7 @@
                         <p class="text-sm text-gray-600 mb-4">Scan this QR code to verify the product</p>
                     </div>
                     <button 
-                        @click="showModal = false"
+                        @click="closeModal"
                         class="w-full bg-gray-200 text-gray-800 py-2 rounded-md hover:bg-gray-300"
                     >
                         Close
@@ -103,6 +118,8 @@
                 return {
                     products: [],
                     selectedCategory: '',
+                    selectedCompany: '',
+                    companies: [],
                     showModal: false,
                     selectedQRId: '',
                 }
@@ -110,17 +127,24 @@
             // Computed properties
             computed: {
                 filteredProducts() {
-                    if (!this.selectedCategory) return this.products;
-                    return this.products.filter(p => p.category === this.selectedCategory);
+                    return this.products.filter(product => {
+                        const matchesCategory = this.selectedCategory ? product.category === this.selectedCategory : true;
+                        const matchesCompany = this.selectedCompany ? product.company === this.selectedCompany : true;
+                        return matchesCategory && matchesCompany;
+                    });
                 }
             },
             // Methods for handling user interactions
             methods: {
-                // Fetch products from the server
+                // Fetch products and companies from the server
                 async fetchProducts() {
                     try {
                         const response = await fetch('/api/products');
-                        this.products = await response.json();
+                        const data = await response.json();
+                        this.products = data.products;
+
+                        // Extract unique companies from products
+                        this.companies = [...new Set(this.products.map(product => product.company))];
                     } catch (error) {
                         console.error('Error fetching products:', error);
                         // Fallback to sample data if API fails
@@ -128,19 +152,26 @@
                             {
                                 _id: 1,
                                 productName: 'Sample Product',
-                                companyName: 'Sample Company',
+                                company: 'Sample Company',
                                 category: 'electronics',
                                 description: 'This is a sample product description',
                                 price: 99.99,
-                                qrId: 'SAMPLE-QR-123'
+                                qrId: 'SAMPLE-QR-123',
+                                imageUrl: '/placeholder.jpg'
                             }
                         ];
+                        this.companies = ['Sample Company'];
                     }
                 },
                 // Show QR code modal
                 showQRCode(qrId) {
                     this.selectedQRId = qrId;
                     this.showModal = true;
+                },
+                // Close QR code modal
+                closeModal() {
+                    this.showModal = false;
+                    this.selectedQRId = '';
                 }
             },
             // Lifecycle hook - fetch products when component mounts

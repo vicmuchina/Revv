@@ -5,23 +5,20 @@ const express = require('express');
 const mongoose = require('mongoose');
 const multer = require('multer');
 const path = require('path');
+const { v4: uuidv4 } = require('uuid');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Create schema and model
 const productSchema = new mongoose.Schema({
-    companyName: String,
-    productName: String,
-    category: String,
-    description: String,
-    manufacturingDate: Date,
-    expiryDate: Date,
-    batchNumber: String,
-    serialNumber: String,
-    price: Number,
-    imageUrl: String,
-    qrId: String
+    company: { type: String, required: true },
+    productName: { type: String, required: true },
+    category: { type: String, required: true },
+    description: { type: String },
+    price: { type: Number, required: true },
+    qrId: { type: String, required: true },
+    imageUrl: { type: String, required: true }
 });
 
 const Product = mongoose.model('Product', productSchema);
@@ -39,10 +36,10 @@ mongoose.connect(mongoURI)
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
+    destination: function (req, file, cb) {
         cb(null, 'public/uploads/');
     },
-    filename: (req, file, cb) => {
+    filename: function (req, file, cb) {
         cb(null, Date.now() + path.extname(file.originalname));
     }
 });
@@ -56,39 +53,41 @@ app.use(express.json());
 // API Routes
 app.post('/api/products', upload.single('image'), async (req, res) => {
     try {
-        const productData = req.body;
-        if (req.file) {
-            productData.imageUrl = '/uploads/' + req.file.filename;
-        }
-        productData.qrId = 'QR' + Date.now();
+        // Extract product details from the request body
+        const { company, productName, category, description, price } = req.body;
 
-        const product = new Product(productData);
-        await product.save();
-        
-        res.json({ 
-            success: true, 
-            message: 'Product registered successfully',
-            qrId: product.qrId 
-        });
+        // Define 'productData' with the extracted fields
+        const productData = {
+            company,
+            productName,
+            category,
+            description,
+            price,
+            qrId: generateQRCodeId(), // Assuming you have a function to generate QR IDs
+            imageUrl: req.file ? `/uploads/${req.file.filename}` : '/placeholder.jpg' // Handle image upload
+        };
+
+        // Create a new Product instance with 'productData'
+        const newProduct = new Product(productData);
+
+        // Save the product to the database
+        const savedProduct = await newProduct.save();
+
+        // Respond with the saved product
+        res.status(201).json({ product: savedProduct });
     } catch (error) {
         console.error('Error saving product:', error);
-        res.status(500).json({ 
-            success: false, 
-            error: 'Failed to register product' 
-        });
+        res.status(500).json({ error: error.message });
     }
 });
 
 app.get('/api/products', async (req, res) => {
     try {
         const products = await Product.find();
-        res.json(products);
+        res.status(200).json({ products });
     } catch (error) {
         console.error('Error fetching products:', error);
-        res.status(500).json({ 
-            success: false, 
-            error: 'Failed to fetch products' 
-        });
+        res.status(500).json({ error: error.message });
     }
 });
 
@@ -107,4 +106,8 @@ process.on('SIGINT', async () => {
         console.error('Error closing MongoDB connection:', err);
         process.exit(1);
     }
-}); 
+});
+
+function generateQRCodeId() {
+    return uuidv4();
+} 
