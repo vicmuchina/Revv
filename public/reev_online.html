@@ -3,268 +3,202 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LuxMarket - Verified Luxury Shopping</title>
-    <style>
-        /* Base styles */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        }
-
-        /* Page background */
-        body {
-            background-color: #f8f8f8;
-        }
-
-        /* Header styling */
-        .header {
-            padding: 20px;
-            background: white;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        /* Navigation tabs for product categories */
-        .nav-tabs {
-            display: flex;
-            gap: 16px;
-            padding: 16px 20px;
-            background: white;
-            overflow-x: auto;
-            white-space: nowrap;
-        }
-
-        .nav-tab {
-            padding: 8px 16px;
-            background: #f0f0f0;
-            border-radius: 20px;
-            font-size: 14px;
-            cursor: pointer;
-        }
-
-        .nav-tab.active {
-            background: #000;
-            color: white;
-        }
-
-        /* Product grid layout */
-        .products-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
-            padding: 20px;
-        }
-
-        /* Individual product card styling */
-        .product-card {
-            background: white;
-            border-radius: 12px;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .product-image {
-            width: 100%;
-            height: 300px;
-            object-fit: cover;
-        }
-
-        .product-info {
-            padding: 16px;
-        }
-
-        .product-title {
-            font-size: 16px;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-
-        .product-price {
-            color: #666;
-            font-size: 18px;
-            font-weight: 600;
-        }
-
-        /* REEV verification badge */
-        .reev-badge {
-            position: absolute;
-            top: 12px;
-            right: 12px;
-            background: rgba(255,255,255,0.9);
-            padding: 6px 12px;
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 14px;
-        }
-
-        .blue-tick {
-            color: #007AFF;
-            font-size: 18px;
-        }
-
-        /* QR code verification section */
-        .verification-section {
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            margin: 20px;
-            text-align: center;
-        }
-
-        .qr-code {
-            width: 200px;
-            height: 200px;
-            margin: 20px auto;
-            background: #f0f0f0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-            color: #666;
-        }
-
-        /* Button styles */
-        .verify-button {
-            background: #007AFF;
-            color: white;
-            padding: 12px 24px;
-            border-radius: 24px;
-            border: none;
-            font-size: 16px;
-            cursor: pointer;
-            margin-top: 16px;
-        }
-
-        .back-button {
-            padding: 8px 16px;
-            background: none;
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
-        }
-
-        /* Page visibility control */
-        #productPage, #qrCodePage {
-            display: none;
-        }
-    </style>
+    <title>REEV Online Marketplace</title>
+    <!-- Include Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <!-- Main Product Listing Page -->
-    <div id="mainPage">
-        <header class="header">
-            <h1>LuxMarket</h1>
-        </header>
+<body class="bg-gray-100">
+    <div class="min-h-screen p-6">
+        <div class="max-w-7xl mx-auto">
+            <!-- Header -->
+            <header class="flex justify-between items-center mb-8">
+                <h1 class="text-4xl font-bold">REEV Online Marketplace</h1>
+                <nav>
+                    <a href="product_registration.html" class="text-blue-600 hover:underline mr-4">Register Product</a>
+                    <a href="index.html" class="text-blue-600 hover:underline">Home</a>
+                </nav>
+            </header>
 
-        <!-- Category Navigation -->
-        <nav class="nav-tabs">
-            <div class="nav-tab active">All</div>
-            <div class="nav-tab">New In</div>
-            <div class="nav-tab">Accessories</div>
-            <div class="nav-tab">Bags</div>
-            <div class="nav-tab">Clothing</div>
-        </nav>
-
-        <!-- Product Grid -->
-        <div class="products-grid">
-            <!-- REEV Verified Product Example -->
-            <div class="product-card" onclick="showProduct('Vintage Chanel', true)">
-                <img src="/api/placeholder/300/300" alt="Vintage Chanel Bag" class="product-image">
-                <!-- REEV verification badge -->
-                <div class="reev-badge">
-                    <span class="blue-tick">✓</span>
-                    Reev Approved
-                </div>
-                <div class="product-info">
-                    <div class="product-title">Vintage Chanel Quilted 2.55 Bag</div>
-                    <div class="product-price">$6,000</div>
+            <!-- Product Categories -->
+            <div class="mb-6">
+                <h2 class="text-2xl font-semibold mb-4">Categories</h2>
+                <div class="flex flex-wrap gap-4">
+                    <button class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Electronics</button>
+                    <button class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Fashion</button>
+                    <button class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Food & Beverages</button>
+                    <button class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Health & Beauty</button>
+                    <button class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Other</button>
                 </div>
             </div>
 
-            <!-- Non-verified Product Example -->
-            <div class="product-card">
-                <img src="/api/placeholder/300/300" alt="Hermes Birkin" class="product-image">
-                <div class="product-info">
-                    <div class="product-title">Hermes Birkin 30</div>
-                    <div class="product-price">$15,000</div>
+            <!-- Products Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Product Card 1 -->
+                <div class="bg-white rounded-lg shadow overflow-hidden cursor-pointer transition-transform hover:scale-105" 
+                     data-qr="qrCode1.png">
+                    <img src="uploads/product1.jpg" alt="Smartphone X200" class="w-full h-48 object-cover">
+                    <div class="p-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="text-xl font-semibold">Smartphone X200</h3>
+                            <span class="bg-green-100 text-green-800 text-sm font-medium px-2.5 py-0.5 rounded">Electronics</span>
+                        </div>
+                        <p class="text-gray-600 mb-1">Company: TechCorp</p>
+                        <p class="text-gray-700 mb-4">Latest smartphone with cutting-edge features and sleek design.</p>
+                        <div class="flex items-center justify-between">
+                            <span class="text-lg font-bold">$799</span>
+                            <!-- Reev Approved Badge -->
+                            <div class="flex items-center text-blue-600">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" 
+                                     viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                          d="M5 13l4 4L19 7" />
+                                </svg>
+                                Reev Approved
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product Card 2 -->
+                <div class="bg-white rounded-lg shadow overflow-hidden cursor-pointer transition-transform hover:scale-105" 
+                     data-qr="qrCode2.png">
+                    <img src="uploads/product2.jpg" alt="Designer Handbag Elite" class="w-full h-48 object-cover">
+                    <div class="p-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="text-xl font-semibold">Designer Handbag Elite</h3>
+                            <span class="bg-green-100 text-green-800 text-sm font-medium px-2.5 py-0.5 rounded">Fashion</span>
+                        </div>
+                        <p class="text-gray-600 mb-1">Company: StyleHub</p>
+                        <p class="text-gray-700 mb-4">Elegantly crafted handbag with premium materials and timeless style.</p>
+                        <div class="flex items-center justify-between">
+                            <span class="text-lg font-bold">$1,299</span>
+                            <!-- Reev Approved Badge -->
+                            <div class="flex items-center text-blue-600">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" 
+                                     viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                          d="M5 13l4 4L19 7" />
+                                </svg>
+                                Reev Approved
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product Card 3 (No Reev Approval) -->
+                <div class="bg-white rounded-lg shadow overflow-hidden cursor-pointer transition-transform hover:scale-105">
+                    <img src="uploads/product3.jpg" alt="Organic Coffee Beans" class="w-full h-48 object-cover">
+                    <div class="p-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="text-xl font-semibold">Organic Coffee Beans</h3>
+                            <span class="bg-green-100 text-green-800 text-sm font-medium px-2.5 py-0.5 rounded">Food & Beverages</span>
+                        </div>
+                        <p class="text-gray-600 mb-1">Company: GreenBrew</p>
+                        <p class="text-gray-700 mb-4">Rich and flavorful organic coffee beans sourced from sustainable farms.</p>
+                        <div class="flex items-center justify-between">
+                            <span class="text-lg font-bold">$25</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product Card 4 -->
+                <div class="bg-white rounded-lg shadow overflow-hidden cursor-pointer transition-transform hover:scale-105" 
+                     data-qr="qrCode4.png">
+                    <img src="uploads/product4.jpg" alt="Fitness Tracker Pro" class="w-full h-48 object-cover">
+                    <div class="p-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="text-xl font-semibold">Fitness Tracker Pro</h3>
+                            <span class="bg-green-100 text-green-800 text-sm font-medium px-2.5 py-0.5 rounded">Health & Beauty</span>
+                        </div>
+                        <p class="text-gray-600 mb-1">Company: FitLife</p>
+                        <p class="text-gray-700 mb-4">Advanced fitness tracker with multiple health monitoring features.</p>
+                        <div class="flex items-center justify-between">
+                            <span class="text-lg font-bold">$199</span>
+                            <!-- Reev Approved Badge -->
+                            <div class="flex items-center text-blue-600">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" 
+                                     viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                          d="M5 13l4 4L19 7" />
+                                </svg>
+                                Reev Approved
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product Card 5 (No Reev Approval) -->
+                <div class="bg-white rounded-lg shadow overflow-hidden cursor-pointer transition-transform hover:scale-105">
+                    <img src="uploads/product5.jpg" alt="Eco-friendly Water Bottle" class="w-full h-48 object-cover">
+                    <div class="p-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="text-xl font-semibold">Eco-friendly Water Bottle</h3>
+                            <span class="bg-green-100 text-green-800 text-sm font-medium px-2.5 py-0.5 rounded">Other</span>
+                        </div>
+                        <p class="text-gray-600 mb-1">Company: AquaPure</p>
+                        <p class="text-gray-700 mb-4">Reusable and sustainable water bottle designed for everyday use.</p>
+                        <div class="flex items-center justify-between">
+                            <span class="text-lg font-bold">$30</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <!-- Another REEV Verified Product -->
-            <div class="product-card" onclick="showProduct('Gucci Marmont', true)">
-                <img src="/api/placeholder/300/300" alt="Gucci Bag" class="product-image">
-                <div class="reev-badge">
-                    <span class="blue-tick">✓</span>
-                    Reev Approved
-                </div>
-                <div class="product-info">
-                    <div class="product-title">Gucci Marmont Mini</div>
-                    <div class="product-price">$1,400</div>
+            <!-- QR Code Modal -->
+            <div id="qrCodeModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+                <div class="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full relative">
+                    <button id="closeModal" class="absolute top-2 right-2 text-gray-500 hover:text-gray-700">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" 
+                             viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                  d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                    <h2 class="text-xl font-semibold mb-4">Scan the QR Code</h2>
+                    <img id="qrCodeImage" src="" alt="QR Code" class="w-40 h-40 mx-auto mb-4">
+                    <p class="text-center text-gray-700">Scan this QR code to verify product authenticity and view details.</p>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Individual Product Details Page -->
-    <div id="productPage">
-        <header class="header">
-            <button class="back-button" onclick="showMainPage()">←</button>
-            <h1>Product Details</h1>
-        </header>
+        <!-- JavaScript to Handle QR Code Modal -->
+        <script>
+            // Select all Reev Approved product cards
+            const approvedProducts = document.querySelectorAll('div[data-qr]');
 
-        <!-- REEV Authentication Section -->
-        <div class="verification-section">
-            <h2>Reev Authenticated</h2>
-            <p>This product is in the best condition and has been reconditioned by our experts.</p>
-            <button class="verify-button" onclick="showQRCode()">Info About the Company</button>
-        </div>
-    </div>
+            // Select modal elements
+            const qrCodeModal = document.getElementById('qrCodeModal');
+            const qrCodeImage = document.getElementById('qrCodeImage');
+            const closeModalButton = document.getElementById('closeModal');
 
-    <!-- QR Code Verification Page -->
-    <div id="qrCodePage">
-        <header class="header">
-            <button class="back-button" onclick="showProduct()">←</button>
-            <h1>Company Verification</h1>
-        </header>
+            // Function to open modal with QR code
+            function openQRCodeModal(qrCodePath) {
+                qrCodeImage.src = `/qr_codes/${qrCodePath}`; // Adjust the path if necessary
+                qrCodeModal.classList.remove('hidden');
+            }
 
-        <div class="verification-section">
-            <h2>Scan QR Code</h2>
-            <p>Scan this code to verify the company's credentials and learn more about their products</p>
-            <div class="qr-code">
-                [QR Code Placeholder]
-            </div>
-        </div>
-    </div>
+            // Add click event listeners to approved products
+            approvedProducts.forEach(product => {
+                product.addEventListener('click', () => {
+                    const qrCodePath = product.getAttribute('data-qr');
+                    openQRCodeModal(qrCodePath);
+                });
+            });
 
-    <!-- Page Navigation Scripts -->
-    <script>
-        // Function to show main product listing page
-        function showMainPage() {
-            document.getElementById('mainPage').style.display = 'block';
-            document.getElementById('productPage').style.display = 'none';
-            document.getElementById('qrCodePage').style.display = 'none';
-        }
+            // Add click event listener to close modal button
+            closeModalButton.addEventListener('click', () => {
+                qrCodeModal.classList.add('hidden');
+                qrCodeImage.src = '';
+            });
 
-        // Function to show individual product details
-        function showProduct(name, isVerified) {
-            if (!isVerified) return;
-            document.getElementById('mainPage').style.display = 'none';
-            document.getElementById('productPage').style.display = 'block';
-            document.getElementById('qrCodePage').style.display = 'none';
-        }
-
-        // Function to show QR code verification page
-        function showQRCode() {
-            document.getElementById('mainPage').style.display = 'none';
-            document.getElementById('productPage').style.display = 'none';
-            document.getElementById('qrCodePage').style.display = 'block';
-        }
-    </script>
-</body>
-</html>
+            // Close modal when clicking outside the modal content
+            window.addEventListener('click', (event) => {
+                if (event.target === qrCodeModal) {
+                    qrCodeModal.classList.add('hidden');
+                    qrCodeImage.src = '';
+                }
+            });
+        </script>
+    </body>
+    </html>
+    
