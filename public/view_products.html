@@ -1,4 +1,4 @@
-<!-- View Products Page - Displays all registered and authenticated products -->
+<!-- View Products Page - Displays all registered and authenticated products or a specific product based on query -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,7 +12,7 @@
 <body class="bg-gray-50">
     <div id="app" class="min-h-screen p-4">
         <div class="max-w-7xl mx-auto">
-            <!-- Header with back button and category filter -->
+            <!-- Header with back button and filters -->
             <div class="flex items-center justify-between mb-6">
                 <!-- Back button -->
                 <div class="flex items-center">
@@ -39,7 +39,7 @@
                 </select>
 
                 <!-- Company filter dropdown -->
-                <div class="flex items-center mb-4">
+                <div class="flex items-center ml-4">
                     <label class="block text-sm font-medium text-gray-700 mr-2">
                         Filter by Company:
                     </label>
@@ -54,8 +54,38 @@
                 </div>
             </div>
 
-            <!-- Products Grid - Displays products in a responsive grid layout -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Products Grid or Single Product Display -->
+            <div v-if="isSingleProduct" class="flex justify-center">
+                <div class="bg-white rounded-lg shadow overflow-hidden w-full max-w-2xl">
+                    <!-- Product Image -->
+                    <img :src="currentProduct.imageUrl || '/placeholder.jpg'" :alt="currentProduct.productName" class="w-full h-64 object-cover">
+                    
+                    <!-- Product Details -->
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-2">
+                            <h2 class="text-2xl font-semibold">{{ currentProduct.productName }}</h2>
+                            <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">
+                                {{ currentProduct.category }}
+                            </span>
+                        </div>
+                        <p class="text-gray-600 text-sm mb-2">Company: {{ currentProduct.company }}</p>
+                        <p class="text-gray-500 text-sm mb-4">{{ currentProduct.description }}</p>
+                        
+                        <!-- Price and QR Code Button -->
+                        <div class="flex justify-between items-center">
+                            <span class="text-lg font-bold">${{ currentProduct.price }}</span>
+                            <button 
+                                @click="showQRCode(currentProduct.qrId)"
+                                class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+                            >
+                                View QR Code
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <!-- Product Card Component -->
                 <div v-for="product in filteredProducts" :key="product._id" class="bg-white rounded-lg shadow overflow-hidden">
                     <!-- Product Image -->
@@ -86,16 +116,16 @@
                 </div>
             </div>
 
-            <!-- QR Code Modal - Shows when View QR Code is clicked -->
+            <!-- QR Code Modal -->
             <div v-if="showModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
                 <div class="bg-white p-6 rounded-lg max-w-sm w-full">
                     <h3 class="text-lg font-semibold mb-4">Product QR Code</h3>
                     <div class="text-center">
                         <!-- Dynamic QR Code generation using external API -->
-                        <img :src="'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + selectedQRId" 
+                        <img :src="'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + qrUrl" 
                              alt="QR Code" 
                              class="mx-auto mb-4">
-                        <p class="text-sm text-gray-600 mb-4">Scan this QR code to verify the product</p>
+                        <p class="text-sm text-gray-600 mb-4">Scan this QR code to view product details</p>
                     </div>
                     <button 
                         @click="closeModal"
@@ -113,7 +143,6 @@
         const { createApp } = Vue
 
         createApp({
-            // Application state
             data() {
                 return {
                     products: [],
@@ -121,10 +150,11 @@
                     selectedCompany: '',
                     companies: [],
                     showModal: false,
-                    selectedQRId: '',
+                    qrUrl: '',
+                    isSingleProduct: false,
+                    currentProduct: {}
                 }
             },
-            // Computed properties
             computed: {
                 filteredProducts() {
                     return this.products.filter(product => {
@@ -134,47 +164,46 @@
                     });
                 }
             },
-            // Methods for handling user interactions
             methods: {
-                // Fetch products and companies from the server
                 async fetchProducts() {
                     try {
-                        const response = await fetch('/api/products');
-                        const data = await response.json();
-                        this.products = data.products;
+                        const urlParams = new URLSearchParams(window.location.search);
+                        const productId = urlParams.get('id'); // Get 'id' from query params
 
-                        // Extract unique companies from products
-                        this.companies = [...new Set(this.products.map(product => product.company))];
+                        if (productId) {
+                            // Fetch specific product
+                            const response = await fetch(`/api/products/${productId}`);
+                            const data = await response.json();
+
+                            if (data.product) {
+                                this.currentProduct = data.product;
+                                this.isSingleProduct = true;
+                            } else {
+                                this.isSingleProduct = false;
+                            }
+                        } else {
+                            // Fetch all products
+                            const response = await fetch('/api/products');
+                            const data = await response.json();
+                            this.products = data.products;
+
+                            // Extract unique companies
+                            this.companies = [...new Set(this.products.map(product => product.company))];
+                        }
                     } catch (error) {
                         console.error('Error fetching products:', error);
-                        // Fallback to sample data if API fails
-                        this.products = [
-                            {
-                                _id: 1,
-                                productName: 'Sample Product',
-                                company: 'Sample Company',
-                                category: 'electronics',
-                                description: 'This is a sample product description',
-                                price: 99.99,
-                                qrId: 'SAMPLE-QR-123',
-                                imageUrl: '/placeholder.jpg'
-                            }
-                        ];
-                        this.companies = ['Sample Company'];
+                        // Handle error appropriately
                     }
                 },
-                // Show QR code modal
                 showQRCode(qrId) {
-                    this.selectedQRId = qrId;
+                    this.qrUrl = `http://localhost:3000/view_products.html?id=${qrId}`;
                     this.showModal = true;
                 },
-                // Close QR code modal
                 closeModal() {
                     this.showModal = false;
-                    this.selectedQRId = '';
+                    this.qrUrl = '';
                 }
             },
-            // Lifecycle hook - fetch products when component mounts
             mounted() {
                 this.fetchProducts();
             }
