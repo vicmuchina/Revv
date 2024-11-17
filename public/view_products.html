@@ -26,6 +26,7 @@
                 
                 <!-- Category filter dropdown -->
                 <select 
+                    v-if="!isSingleProduct"
                     v-model="selectedCategory" 
                     @change="filterProducts"
                     class="p-2 border rounded-md"
@@ -39,7 +40,7 @@
                 </select>
 
                 <!-- Company filter dropdown -->
-                <div class="flex items-center ml-4">
+                <div v-if="!isSingleProduct" class="flex items-center ml-4">
                     <label class="block text-sm font-medium text-gray-700 mr-2">
                         Filter by Company:
                     </label>
@@ -62,74 +63,112 @@
                     
                     <!-- Product Details -->
                     <div class="p-6">
-                        <!-- Product Header -->
-                        <div class="flex items-center justify-between mb-4">
+                        <!-- Add REEV Approved Badge -->
+                        <div class="flex items-center justify-between mb-6">
+                            <div class="flex items-center space-x-3">
+                                <!-- Enhanced REEV Approved Badge -->
+                                <div class="relative">
+                                    <span class="bg-gradient-to-r from-green-500 to-emerald-600 text-white text-base font-bold px-4 py-2 rounded-lg flex items-center shadow-lg transform hover:scale-105 transition-transform duration-200">
+                                        <svg class="w-6 h-6 mr-2 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        REEV APPROVED
+                                        <!-- Glowing effect -->
+                                        <div class="absolute inset-0 rounded-lg bg-white opacity-25 animate-ping"></div>
+                                    </span>
+                                </div>
+                                
+                                <!-- Category Badge -->
+                                <span class="bg-blue-100 text-blue-800 text-sm font-semibold px-3 py-1.5 rounded-md border border-blue-200 shadow-sm">
+                                    {{ currentProduct.category }}
+                                </span>
+                            </div>
+                            
+                            <!-- Authentication Info -->
+                            <div class="flex items-center bg-gray-50 px-3 py-1.5 rounded-md border border-gray-200">
+                                <svg class="w-5 h-5 text-gray-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                </svg>
+                                <div class="flex flex-col">
+                                    <span class="text-xs text-gray-500">Authenticated on</span>
+                                    <span class="text-sm font-medium text-gray-700">{{ new Date().toLocaleDateString() }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between mb-2">
                             <h2 class="text-2xl font-semibold">{{ currentProduct.productName }}</h2>
-                            <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">
-                                {{ currentProduct.category }}
-                            </span>
+                        </div>
+                        
+                        <!-- Product Information Grid -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                            <div class="space-y-3">
+                                <div class="flex items-center space-x-2">
+                                    <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                    </svg>
+                                    <span class="text-gray-600">Company:</span>
+                                    <span class="font-medium">{{ currentProduct.company }}</span>
+                                </div>
+                                
+                                <div class="flex items-center space-x-2">
+                                    <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
+                                    </svg>
+                                    <span class="text-gray-600">Batch Number:</span>
+                                    <span class="font-medium">{{ currentProduct.batchNumber }}</span>
+                                </div>
+
+                                <div class="flex items-center space-x-2">
+                                    <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                    </svg>
+                                    <span class="text-gray-600">Serial Number:</span>
+                                    <span class="font-medium">{{ currentProduct.serialNumber }}</span>
+                                </div>
+                            </div>
+
+                            <div class="space-y-3">
+                                <div class="flex items-center space-x-2">
+                                    <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                    <span class="text-gray-600">Manufacturing Date:</span>
+                                    <span class="font-medium">{{ new Date(currentProduct.manufacturingDate).toLocaleDateString() }}</span>
+                                </div>
+
+                                <div v-if="currentProduct.expiryDate" class="flex items-center space-x-2">
+                                    <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <span class="text-gray-600">Expiry Date:</span>
+                                    <span class="font-medium">{{ new Date(currentProduct.expiryDate).toLocaleDateString() }}</span>
+                                </div>
+                            </div>
                         </div>
 
-                        <!-- Company Information -->
-                        <div class="mb-6">
-                            <h3 class="text-lg font-semibold mb-2">Company Information</h3>
-                            <p class="text-gray-600">{{ currentProduct.company }}</p>
-                        </div>
-
-                        <!-- Product Description -->
-                        <div class="mb-6">
-                            <h3 class="text-lg font-semibold mb-2">Product Description</h3>
+                        <!-- Description -->
+                        <div class="mt-4">
+                            <h3 class="text-gray-600 font-medium mb-2">Description</h3>
                             <p class="text-gray-700">{{ currentProduct.description }}</p>
                         </div>
 
-                        <!-- Additional Details -->
-                        <div class="mb-6">
-                            <h3 class="text-lg font-semibold mb-2">Product Details</h3>
-                            <div class="grid grid-cols-2 gap-4">
-                                <div>
-                                    <p class="text-gray-600 font-medium">Batch Number:</p>
-                                    <p class="text-gray-800">{{ currentProduct.batchNumber || 'N/A' }}</p>
-                                </div>
-                                <div>
-                                    <p class="text-gray-600 font-medium">Serial Number:</p>
-                                    <p class="text-gray-800">{{ currentProduct.serialNumber || 'N/A' }}</p>
-                                </div>
-                                <div>
-                                    <p class="text-gray-600 font-medium">Manufacturing Date:</p>
-                                    <p class="text-gray-800">{{ currentProduct.manufacturingDate || 'N/A' }}</p>
-                                </div>
-                                <div>
-                                    <p class="text-gray-600 font-medium">Expiry Date:</p>
-                                    <p class="text-gray-800">{{ currentProduct.expiryDate || 'N/A' }}</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Authentication Status -->
-                        <div class="mb-6 bg-green-50 p-4 rounded-lg">
-                            <div class="flex items-center mb-2">
-                                <svg class="h-5 w-5 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        <!-- Price and QR Code Button -->
+                        <div class="flex justify-between items-center mt-6">
+                            <div class="flex items-center space-x-2">
+                                <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
-                                <h3 class="text-lg font-semibold text-green-800">REEV Authenticated</h3>
-                            </div>
-                            <p class="text-green-700">This product has been verified and authenticated by REEV.</p>
-                        </div>
-
-                        <!-- Price and Actions -->
-                        <div class="flex justify-between items-center">
-                            <div>
-                                <p class="text-gray-600 text-sm">Price</p>
                                 <span class="text-2xl font-bold">${{ currentProduct.price }}</span>
                             </div>
                             <button 
                                 @click="showQRCode(currentProduct.qrId)"
-                                class="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 flex items-center"
+                                class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 flex items-center space-x-2"
                             >
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/>
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
                                 </svg>
-                                View QR Code
+                                <span>View QR Code</span>
                             </button>
                         </div>
                     </div>
@@ -258,7 +297,7 @@
                     }
                 },
                 showQRCode(qrId) {
-                    this.qrUrl = `http://localhost:3000/view_products.html?id=${qrId}`;
+                    this.qrUrl = `${window.location.origin}/view_products.html?id=${qrId}`;
                     this.showModal = true;
                 },
                 closeModal() {

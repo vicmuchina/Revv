@@ -130,7 +130,6 @@ app.post('/api/products', upload.single('image'), async (req, res) => {
       manufacturingDate: new Date(manufacturingDate),
       expiryDate: expiryDate ? new Date(expiryDate) : undefined,
       qrId: generateQRCodeId(),
-      // Set image URL, use placeholder if no image uploaded
       imageUrl: req.file ? `/uploads/${req.file.filename}` : '/placeholder.jpg'
     };
 
